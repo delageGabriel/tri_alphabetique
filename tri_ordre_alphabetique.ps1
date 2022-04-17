@@ -1,6 +1,6 @@
 ﻿#############################################################################
 #     ~~ Auteur  : Gabriel DELAGE©                                          #
-#     ~~ Version : 1.1-alpha                                                #
+#     ~~ Version : 1.1                                                      #
 #############################################################################
 
 #############################################################################
@@ -33,6 +33,8 @@ for($i = 0; $i -lt $tailleTableau ; $i++)
    $varTemp = Get-Content -Path $objForm.FileName -Encoding UTF8| where {$_-ne "$null"} | Select-Object -Index $i 
    $list.Add($varTemp)
 }
+
+Clear-Content -Path $objForm.FileName
 
 #############################################################################
 #                   ** Création tableaux alphabet **                        #
@@ -200,8 +202,23 @@ function Set-TriAlphabetiqueAZ($cpt, $unIndex, $uneListe, $nouvelleListeMethode)
 }
 
 Set-TriAlphabetiqueAZ -cpt $compteARebours -unIndex 0 -uneListe $list -nouvelleListeMethode $nouvelleListe
-$nouvelleListe
+
+#############################################################################
+#     ** Nettoyage complet du fichier txt pour accueillir les        **     #
+#     ** nouvelles lignes                                            **     #
+#############################################################################
+Clear-Content -Path $objForm.FileName
+
+#############################################################################
+#     ** Chaque objet de la nouvelle liste sera inséré dans le       **     #
+#     ** fichier txt d'origine                                       **     #
+#############################################################################
+foreach($objets in $nouvelleListe)
+{
+    Add-Content -Path $objForm.FileName -Value $objets
+}
 
 #############################################################################
 #     ~~ Date de création : 15 avril 2022                                   #
+#     ~~ Dernière date de modification : 17 avril 2022                      #
 #############################################################################
