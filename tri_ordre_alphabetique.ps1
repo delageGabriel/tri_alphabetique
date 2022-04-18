@@ -1,6 +1,6 @@
 ﻿#############################################################################
 #     ~~ Auteur  : Gabriel DELAGE©                                          #
-#     ~~ Version : 1.1                                                      #
+#     ~~ Version : 1.1.0                                                    #
 #############################################################################
 
 #############################################################################
@@ -159,9 +159,7 @@ function Set-TriAlphabetiqueAZ($cpt, $unIndex, $uneListe, $nouvelleListeMethode)
             $chiffreAComparer = Get-ChiffreCaractere -lettre $lettreAComparer
 
             if($motLePlusGrand -eq $motAComparer)
-            {
-                Write-Host "Les mots sont exactement pareil."
-            }
+            {}
             else
             {
                 if($chiffrePlusGrand -lt $chiffreAComparer)
@@ -198,10 +196,120 @@ function Set-TriAlphabetiqueAZ($cpt, $unIndex, $uneListe, $nouvelleListeMethode)
         $nouvelleListeMethode.Add($motLePlusGrand)
         $motLePlusGrand = $null
         $i = $i + 1
+        Write-Progress -Activity "Traitement en cours..." -Status "$i complété:" -PercentComplete $i
+        Start-Sleep -Milliseconds 250
     }
 }
 
-Set-TriAlphabetiqueAZ -cpt $compteARebours -unIndex 0 -uneListe $list -nouvelleListeMethode $nouvelleListe
+#############################################################################
+#     ** Méthode de tri par ordre alphabétique de Z à A              **     #
+#############################################################################
+#     ** $cpt -> type: integer; servira pour le compteur             **     #
+#     ** $unIndex -> type: integer; utile, si jamais deux caracteres **     #
+#     ** dans les mots comparés se ressemblent                       **     #
+#     ** $uneListe -> type: arrayList; liste originale d'où sera     **     #
+#     ** extrait les mots                                            **     #
+#     ** $nouvelleListeMethode -> type: arrayList; nouvelle liste    **     #
+#     ** où seront stockés les mots rangés alphabétiquement          **     #
+#############################################################################
+function Set-TriAlphabetiqueZA($cpt, $unIndex,$uneListe, $nouvelleListeMethode)
+{
+    $motLePlusPetit = $null
+    $i = 0
+
+    while($i -lt $cpt)
+    {
+        $k = 0
+
+        for($j = 0 ; $j -lt $uneListe.Count ; $j++)
+        {           
+            $unIndex = 0
+
+            if($motLePlusPetit -eq $null)
+            {
+                $motLePlusPetit = $uneListe[$j]
+            }
+            if($k -eq $j)
+            {
+                $k = $k + 1
+                if($k -gt $uneListe.Count - 1)
+                {
+                    $k = $uneListe.Count - 1
+                } 
+            }
+            else
+            {
+                $motAComparer = $uneListe[$k]
+            }
+
+            $motAComparer     = $uneListe[$k]
+            $lettrePlusPetite = Get-Caractere -mot $motLePlusPetit -index $unIndex -nbCaractereARecup 1
+            $chiffrePlusPetit = Get-ChiffreCaractere -lettre $lettrePlusPetite
+            $lettreAComparer  = Get-Caractere -mot $motAComparer -index $unIndex -nbCaractereARecup 1
+            $chiffreAComparer = Get-ChiffreCaractere -lettre $lettreAComparer
+
+            if($motLePlusPetit -eq $motAComparer)
+            {}
+            else
+            {
+                if($chiffrePlusPetit -gt $chiffreAComparer)
+                {
+                    $motLePlusPetit = $motAComparer
+                }
+                if($chiffrePlusPetit -eq $chiffreAComparer)
+                {
+                    while($chiffrePlusPetit -eq $chiffreAComparer)
+                    {
+                        $unIndex = $unIndex + 1
+                        $lettrePlusPetite = Get-Caractere -mot $motLePlusPetit -index $unIndex -nbCaractereARecup 1
+                        $chiffrePlusPetit = Get-ChiffreCaractere -lettre $lettrePlusPetite
+                        $lettreAComparer  = Get-Caractere -mot $motAComparer -index $unIndex -nbCaractereARecup 1
+                        $chiffreAComparer = Get-ChiffreCaractere -lettre $lettreAComparer
+
+                        if($chiffrePlusPetit -gt $chiffreAComparer)
+                        {
+                            $motLePlusPetit = $motAComparer
+                        }
+                    }
+                }
+            }            
+         }
+
+         for($x = 0; $x -lt $uneListe.Count; $x++)
+         {
+            if($motLePlusPetit -eq $uneListe[$x])
+            {
+                $uneListe.RemoveAt($x)
+            }
+         }
+         
+        $nouvelleListeMethode.Add($motLePlusPetit)
+        $motLePlusPetit = $null
+        $i = $i + 1
+        Write-Progress -Activity "Traitement en cours..." -Status "$i complété:" -PercentComplete $i
+        Start-Sleep -Milliseconds 250
+    }
+}
+
+#############################################################################
+#     ** On va récupérer la méthode que l'utilisateur veut utiliser, **     #
+#     ** pour ensuite s'en servir comme méthode de tri.              **     #
+#############################################################################
+
+$ordreDeTri = Read-Host "Tapez 'A' pour que le fichier soit trié de A à Z, tapez 'Z' pour qu'il soit trié de Z à A."
+
+if($ordreDeTri -eq 'A')
+{
+    Set-TriAlphabetiqueAZ -cpt $compteARebours -unIndex 0 -uneListe $list -nouvelleListeMethode $nouvelleListe
+}
+elseif($ordreDeTri -eq 'Z')
+{
+    Set-TriAlphabetiqueZA -cpt $compteARebours -unIndex 0 -uneListe $list -nouvelleListeMethode $nouvelleListe    
+}
+else
+{
+    Write-Host "Option non valide, mauvaise saisie."
+}
 
 #############################################################################
 #     ** Nettoyage complet du fichier txt pour accueillir les        **     #
@@ -215,10 +323,10 @@ Clear-Content -Path $objForm.FileName
 #############################################################################
 foreach($objets in $nouvelleListe)
 {
-    Add-Content -Path $objForm.FileName -Value $objets
+    Add-Content -Path $objForm.FileName -Value $objets -Encoding UTF8
 }
 
 #############################################################################
 #     ~~ Date de création : 15 avril 2022                                   #
-#     ~~ Dernière date de modification : 17 avril 2022                      #
+#     ~~ Dernière date de modification : 18 avril 2022                      #
 #############################################################################
