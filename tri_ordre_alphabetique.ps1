@@ -196,7 +196,7 @@ function Set-TriAlphabetiqueAZ($cpt, $unIndex, $uneListe, $nouvelleListeMethode)
         $nouvelleListeMethode.Add($motLePlusGrand)
         $motLePlusGrand = $null
         $i = $i + 1
-        Write-Progress -Activity "Traitement en cours..." -Status "$i complété:" -PercentComplete $i
+        Write-Progress -Activity "Traitement en cours..." -Status "$i complété(s) sur $cpt :" -PercentComplete (($i/$cpt)*100)
         Start-Sleep -Milliseconds 250
     }
 }
@@ -286,7 +286,7 @@ function Set-TriAlphabetiqueZA($cpt, $unIndex,$uneListe, $nouvelleListeMethode)
         $nouvelleListeMethode.Add($motLePlusPetit)
         $motLePlusPetit = $null
         $i = $i + 1
-        Write-Progress -Activity "Traitement en cours..." -Status "$i complété:" -PercentComplete $i
+        Write-Progress -Activity "Traitement en cours..." -Status "$i complété(s) sur $cpt :" -PercentComplete (($i/$cpt)*100)
         Start-Sleep -Milliseconds 250
     }
 }
